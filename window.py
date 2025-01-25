@@ -6,8 +6,12 @@ class Window():
         self.__root = tkinter.Tk()
         # self.__root.wait_visibility(self.__root)
         self.__root.title = "Quick Poses"
+        self.__root.geometry("800x600")
+        self.__root.columnconfigure(index=0, weight=1)
+        self.__root.rowconfigure(index=1, weight=1)
 
-        self.__main_frame = ttk.Frame(self.__root, padding="3 3 12 12", width=self.__root.winfo_screenwidth() - 100, height=self.__root.winfo_screenheight() - 100)
+
+        self.__main_frame = ttk.Frame(self.__root, padding="3 3 12 12")
         self.__main_frame.grid(column=0, row=0, sticky=(N, W, E, S))
 
         self.__selected_folders = []
@@ -17,8 +21,8 @@ class Window():
         self.__root.mainloop()
     
     def __build_main_page(self):
-
-        ttk.Button(self.__main_frame, text="Add directory", command=self.ask_folder).grid(column=3, row=1, sticky=(W, E))
+        self.__button_frame = ttk.Frame(self.__main_frame).grid(column=0, row=0)
+        ttk.Button(self.__button_frame, text="Add directory", command=self.ask_folder).place(relx=0.5, anchor='n')
 
     def create_delete_func(self, i):
         def delete_selected_folder():
@@ -27,7 +31,6 @@ class Window():
 
             # remove all widgets past a certain row
             for widget in self.__root.grid_slaves():
-                print(widget.grid_info()["row"])
                 if int(widget.grid_info()["row"]) > 1:
                     widget.grid_forget()
 
@@ -44,9 +47,9 @@ class Window():
             self.__create_folder_entry(folder_name, len(self.__selected_folders))
 
     def __create_folder_entry(self, folder_name, i):
-            new_entry = ttk.Label(self.__root, width=7, text=folder_name, wraplength=100)
-            new_entry.grid(column=0, row=i + 1, sticky="WE")
+            new_entry = ttk.Label(self.__root, width=14, text=folder_name, wraplength=100)
+            new_entry.grid(column=0, row=i + 1, sticky="nsew")
 
             # i - 2 to fix 0-based indexing vs starting at row 2.
             entry_button = ttk.Button(self.__root, width=7, text="de-select", command=self.create_delete_func(i - 1))
-            entry_button.grid(column=2, row=i + 1, sticky="WE")
+            entry_button.grid(column=1, row=i + 1, sticky="WE")

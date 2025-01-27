@@ -3,11 +3,15 @@ import tkinter
 from tkinter import E, N, S, W, ttk, filedialog
 
 from pages.mainpage import MainPage
-from pages.quickdraw import QuickDraw
+from pages.countdown import Countdown
+from pages.quickdraw import Quickdraw
+from pages.sessionend import SessionEnd
 
 class PageType(Enum):
     MAIN_PAGE = 1
-    QUICK_DRAW = 2
+    COUNTDOWN = 2
+    QUICK_DRAW = 3
+    SESSION_END = 4
 
 class Window():
     def __init__(self, width, height):
@@ -27,15 +31,33 @@ class Window():
             self.__current_page.destroy()
             
         if self.__current_page_type == PageType.MAIN_PAGE:
-            self.__current_page = MainPage(self.__root, self.start_quickdraw)
+            self.__current_page = MainPage(self.__root, self.start_countdown)
+            self.__current_page.build()
+        elif self.__current_page_type == PageType.COUNTDOWN:
+            self.__current_page = Countdown(self.__root, self.start_quickdraw)
             self.__current_page.build()
         elif self.__current_page_type == PageType.QUICK_DRAW:
-            self.__current_page = QuickDraw(self.__root, self.__selected_folders)
+            self.__current_page = Quickdraw(self.__root, self.__selected_folders, image_count=5, finish_quickdraw=self.finish_quickdraw)
+            self.__current_page.build()
+        elif self.__current_page_type == PageType.SESSION_END:
+            print("session end...")
+            self.__current_page = SessionEnd(self.__root, self.__viewed_images)
             self.__current_page.build()
 
-    def start_quickdraw(self, folders):
+    def start_countdown(self, folders):
         print(f"starting quickdraw! with folders: {folders}")
         self.__selected_folders = folders
-        self.__current_page_type = PageType.QUICK_DRAW
+        self.__current_page_type = PageType.COUNTDOWN
         self.__build_page()
         # create quickdraw page
+
+    def start_quickdraw(self):
+        print("countdown finished! Starting quickdraw!")
+        self.__current_page_type = PageType.QUICK_DRAW
+        self.__build_page()
+
+    def finish_quickdraw(self, images):
+        print(f"finished quickdraw. Images seen: {images}")
+        self.__viewed_images = images
+        self.__current_page_type = PageType.SESSION_END
+        self.__build_page()

@@ -49,7 +49,7 @@ class MainPage():
 
     def __initialize(self):
         self.__start_button_frame = Frame(self.__frame, bg="green")
-        Button(self.__start_button_frame, text="start session", command=self.start_quickdraw_session).pack()
+        Button(self.__start_button_frame, text="start session", command=self.start_quickdraw_countdown).pack()
         self.__button_frame = Frame(self.__frame, bg="blue")
         Button(self.__button_frame, text="Add directory", command=self.ask_folder).pack()
         self.__folder_frame_container = Frame(self.__frame, bg="orange")
@@ -58,7 +58,7 @@ class MainPage():
         self.__button_frame.pack(fill="both", expand=True)
         self.__folder_frame_container.pack(side="top", fill="both", expand=True)
         
-    def start_quickdraw_session(self):
+    def start_quickdraw_countdown(self):
         self.__start_func(self.__selected_folders)
 
     def destroy(self):

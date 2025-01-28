@@ -1,6 +1,6 @@
 import os
 import random
-from tkinter import Event, Frame, Label
+from tkinter import Button, Event, Frame, Label
 from PIL import ImageTk, Image
 
 
@@ -15,6 +15,7 @@ class Quickdraw():
         self.__seen_images = []
         self.__all_images = []
         self.image_count = image_count
+        self.images_remaining = image_count
         self.finish_quickdraw = finish_quickdraw
 
         self.__gather_available_images()
@@ -39,21 +40,20 @@ class Quickdraw():
         # should be a loop that goes for a set amount of time
         # After a timeout has passed, display new image on screen.
         # For convenience, just show a single random image right now.
-        self.__frame.after(0, lambda: self.cycle_images(self.image_count))
+        self.__frame.after(0, lambda: self.cycle_images())
 
-    def cycle_images(self, images_remaining):
-        if images_remaining > 0:
-            images_remaining -= 1
+    def cycle_images(self):
+        if self.images_remaining > 0:
+            self.images_remaining -= 1
             self.__set_next_image()
-            self.__frame.after(10000, lambda: self.cycle_images(images_remaining))
+            # self.__frame.after(10000, lambda: self.cycle_images(images_remaining))
         else:
             print("quickdraw complete!")
             self.finish_quickdraw(self.__seen_images)
-            # Start completion page.
-            # Pass in all completed quickdraw image links
-            # Show all completed images
 
     def __set_next_image(self):
+        # running into weirdness when resizing:
+        # check https://stackoverflow.com/questions/58056320/why-does-this-code-make-the-tkinter-window-continuously-resize-grow-automaticall
         try:
             if self.image_label is not None:
                 self.image_label.destroy()
@@ -65,16 +65,37 @@ class Quickdraw():
         self.img = Image.open(next_image)
         self.img_copy = self.img.copy()
         self.img_aspect_ratio = float(self.img.width) / float(self.img.height)
-        print(self.img_aspect_ratio)
         self.display_img = ImageTk.PhotoImage(self.img)
 
-        # img = ImageTk.PhotoImage(file=next_image)
         self.image_label = Label(self.__frame, image=self.display_img, name="img_container")
-        # image_label.image = img
         self.image_label.pack(fill="both", expand=True)
         self.image_label.bind('<Configure>', self._resize_image)
 
+        self.info = Frame(self.image_label, width=self.img.width, height=(int(self.img.height * .1)), borderwidth=1, relief="solid")
+        time_remaining = Label(self.info)
+        self.info.place(relx=1.0, rely=1.0, x=-2, y=-2,anchor="se")
+        self.__frame.after(0, lambda: self.countdown(10, time_remaining))
+        time_remaining.pack(side="right")
+        nav_buttons = Frame(self.info, width=400)
+        prev_button = Button(nav_buttons, text="previous image")
+        next_button = Button(nav_buttons, text="next image")
+        prev_button.pack(side="left")
+        next_button.pack(side="right")
+        nav_buttons.pack(side="left", padx=(int(self.img.width / 20), int(self.img.width / 4)))
+        # Move info into function that can rerun given a width and height.
+    def countdown(self, i, label: Label):
+        label['text'] = i
+
+        if i > 0:
+            i -= 1
+            # Pauses when resizing. It's a convenient side-effect.
+            self.__frame.after(1000, lambda: self.countdown(i, label))
+        else:
+            print("showing next image!")
+            self.cycle_images()
+
     def _resize_image(self, event: Event):
+        print(event.width, event.height)
         new_width, new_height = self.crop_dims(event.width, event.height, self.img_aspect_ratio)
         self.img = self.img_copy.resize((new_width, new_height))
         self.display_img = ImageTk.PhotoImage(self.img)

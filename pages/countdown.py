@@ -8,13 +8,12 @@ class Countdown():
 
     def build(self):
         self.__frame = Frame(self.__parent, padx=10, pady=10)
-        self.__frame.config(bg="red")
         self.__frame.pack(fill="both", expand=True)
 
         self.__initialize()
 
     def __initialize(self):
-        self.__image_frame = Frame(self.__frame, bg="purple", padx=10, pady=10)
+        self.__image_frame = Frame(self.__frame, padx=10, pady=10)
         Label(self.__image_frame, font=("Arial", 120), name="countdown").pack(fill="both", expand=True)
         self.__image_frame.pack(fill="both", expand=True)
         label = self.__image_frame.nametowidget('countdown')

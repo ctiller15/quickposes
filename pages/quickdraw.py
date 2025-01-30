@@ -17,6 +17,7 @@ class Quickdraw():
         self.image_count = image_count
         self.images_remaining = image_count
         self.finish_quickdraw = finish_quickdraw
+        self.current_image = 0
 
         self.__gather_available_images()
 
@@ -37,21 +38,24 @@ class Quickdraw():
                     self.__all_images.append(os.path.join(folder,file))
 
     def __manage_draw_images(self):
-        # should be a loop that goes for a set amount of time
-        # After a timeout has passed, display new image on screen.
-        # For convenience, just show a single random image right now.
         self.__frame.after(0, lambda: self.cycle_images())
 
     def cycle_images(self):
         if self.images_remaining > 0:
-            self.images_remaining -= 1
-            self.__set_next_image()
-            # self.__frame.after(10000, lambda: self.cycle_images(images_remaining))
+            if self.current_image == len(self.__seen_images):
+                next_image = self.chooseRandomImage()
+                self.__seen_images.append(next_image)
+                self.images_remaining -= 1
+                self.__set_image(next_image)
+            elif self.current_image < len(self.__seen_images):
+                next_image = self.__seen_images[self.current_image]
+                self.__set_image(next_image)
+                
         else:
             print("quickdraw complete!")
             self.finish_quickdraw(self.__seen_images)
 
-    def __set_next_image(self):
+    def __set_image(self, next_image=None):
         # running into weirdness when resizing:
         # check https://stackoverflow.com/questions/58056320/why-does-this-code-make-the-tkinter-window-continuously-resize-grow-automaticall
         try:
@@ -59,9 +63,7 @@ class Quickdraw():
                 self.image_label.destroy()
         except AttributeError:
             pass
-
-        next_image = self.chooseRandomImage()
-        self.__seen_images.append(next_image)
+        
         self.img = Image.open(next_image)
         self.img_copy = self.img.copy()
         self.img_aspect_ratio = float(self.img.width) / float(self.img.height)
@@ -73,29 +75,32 @@ class Quickdraw():
 
         self.info = Frame(self.image_label, width=self.img.width, height=(int(self.img.height * .1)), borderwidth=1, relief="solid")
         time_remaining = Label(self.info)
-        self.info.place(relx=1.0, rely=1.0, x=-2, y=-2,anchor="se")
-        self.__frame.after(0, lambda: self.countdown(10, time_remaining))
+        self.info.place(relx=1.0, rely=1.0, x=-2, y=-2, anchor="se", relwidth=1.0)
+        self.__current_after = self.__frame.after(0, lambda: self.countdown(10, time_remaining))
         time_remaining.pack(side="right")
-        nav_buttons = Frame(self.info, width=400)
-        prev_button = Button(nav_buttons, text="previous image")
-        next_button = Button(nav_buttons, text="next image")
+        # TODO: add pause button.
+
+        nav_buttons = Frame(self.info)
+        prev_button = Button(nav_buttons, text="previous image", command=self.previous_image)
+        next_button = Button(nav_buttons, text="next image", command=self.next_image)
         prev_button.pack(side="left")
         next_button.pack(side="right")
-        nav_buttons.pack(side="left", padx=(int(self.img.width / 20), int(self.img.width / 4)))
+        nav_buttons.pack(side="left", fill="x")
         # Move info into function that can rerun given a width and height.
+
     def countdown(self, i, label: Label):
         label['text'] = i
 
         if i > 0:
             i -= 1
             # Pauses when resizing. It's a convenient side-effect.
-            self.__frame.after(1000, lambda: self.countdown(i, label))
+            self.__current_after = self.__frame.after(1000, lambda: self.countdown(i, label))
         else:
             print("showing next image!")
+            self.current_image += 1
             self.cycle_images()
 
     def _resize_image(self, event: Event):
-        print(event.width, event.height)
         new_width, new_height = self.crop_dims(event.width, event.height, self.img_aspect_ratio)
         self.img = self.img_copy.resize((new_width, new_height))
         self.display_img = ImageTk.PhotoImage(self.img)
@@ -113,6 +118,20 @@ class Quickdraw():
         else:
             height = int(width/ratio + .5)
         return (width, height)
+    
+    def previous_image(self):
+        # Cannot cycle back past a certain point.
+        if self.current_image > 0:
+            self.__frame.after_cancel(self.__current_after)
+            self.current_image -= 1
+            self.cycle_images()
+        else:
+            print("No more previous images.")
+    
+    def next_image(self):
+        self.__frame.after_cancel(self.__current_after)
+        self.current_image += 1
+        self.cycle_images()
 
     def destroy(self):
         self.__frame.destroy()

@@ -1,4 +1,5 @@
 from tkinter import Tk, filedialog, Frame, Label, Button
+from typing import List
 
 
 class MainPage():
@@ -8,13 +9,11 @@ class MainPage():
 
     def build(self):
         self.__frame = Frame(self.__parent, padx=10, pady=10)
-        self.__frame.config(bg="red")
         self.__frame.pack(fill="both", expand=True)
 
         self.__selected_folders = []
 
         self.__initialize()
-        print("building main page!")
     
     def ask_folder(self):
         folder_name = filedialog.askdirectory()
@@ -23,11 +22,21 @@ class MainPage():
             self.__refresh_selected_folders()
 
     def __refresh_selected_folders(self):
+        print(self.__folder_frame_container.winfo_children())
         for folder_frame in self.__folder_frame_container.winfo_children():
             folder_frame.destroy()
 
+        # Recreate the button...
+
+        self.create_directory_button()
+
+        folder_entries: List[Frame] = []
         for i, folder in enumerate(self.__selected_folders):
-            self.__create_folder_entry(folder, i)
+            folder_entries.append(self.__create_folder_entry(folder, i))
+
+        print(folder_entries)
+        for entry in folder_entries:
+            entry.pack(fill="x")
 
     def create_delete_func(self, i):
         def delete_selected_folder():
@@ -38,26 +47,32 @@ class MainPage():
 
         return delete_selected_folder
 
-    def __create_folder_entry(self, folder_name, i):
-            self.__folder_frame = Frame(self.__folder_frame_container, bg="yellow")
-            folder_label = Label(self.__folder_frame, text=folder_name, wraplength=100)
-            folder_delete_button = Button(self.__folder_frame, text="de-select", command=self.create_delete_func(i))
+    def __create_folder_entry(self, folder_name, i) -> Frame:
+            new_folder_entry = Frame(self.__folder_frame_container)
+            folder_label = Label(new_folder_entry, text=folder_name)
+            folder_delete_button = Button(new_folder_entry, text="de-select", command=self.create_delete_func(i))
             folder_label.pack(side="left")
             folder_delete_button.pack(side="right")
 
-            self.__folder_frame.pack(side="top", fill="both", expand=True)
+            return new_folder_entry
+
+            # self.__folder_frame.pack()
 
     def __initialize(self):
-        self.__start_button_frame = Frame(self.__frame, bg="green")
+        self.__start_button_frame = Frame(self.__frame, pady=5)
         Button(self.__start_button_frame, text="start session", command=self.start_quickdraw_countdown).pack()
-        self.__button_frame = Frame(self.__frame, bg="blue")
-        Button(self.__button_frame, text="Add directory", command=self.ask_folder).pack()
-        self.__folder_frame_container = Frame(self.__frame, bg="orange")
+        self.__folder_frame_container = Frame(self.__frame)
+        self.__start_button_frame.pack(fill="both")
         
-        self.__start_button_frame.pack(fill="both", expand=True)
-        self.__button_frame.pack(fill="both", expand=True)
+        self.create_directory_button()
+        
         self.__folder_frame_container.pack(side="top", fill="both", expand=True)
         
+    def create_directory_button(self):
+        self.__button_frame = Frame(self.__folder_frame_container)
+        Button(self.__button_frame, text="Add directory", command=self.ask_folder).pack()
+        self.__button_frame.pack(pady=20)
+    
     def start_quickdraw_countdown(self):
         self.__start_func(self.__selected_folders)
 

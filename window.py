@@ -1,6 +1,6 @@
 from enum import Enum
-import tkinter
-from tkinter import E, N, S, W, ttk, filedialog
+# import tkinter
+from ttkthemes import ThemedTk
 
 from pages.mainpage import MainPage
 from pages.countdown import Countdown
@@ -15,7 +15,7 @@ class PageType(Enum):
 
 class Window():
     def __init__(self, width, height):
-        self.__root = tkinter.Tk()
+        self.__root = ThemedTk(theme="equilux")
         self.__root.title = "Quick Poses"
         self.__root.geometry("800x600")
         self.__root.configure(bg="lightblue", padx=10, pady=10)

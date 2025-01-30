@@ -1,14 +1,16 @@
-from tkinter import Tk, filedialog, Frame, Label, Button
+from tkinter import filedialog
 from typing import List
 
+from tkinter.ttk import Button, Frame, Label
+from ttkthemes import ThemedTk
 
 class MainPage():
-    def __init__(self, parent: Tk, start_func):
+    def __init__(self, parent: ThemedTk, start_func):
         self.__parent = parent
         self.__start_func = start_func
 
     def build(self):
-        self.__frame = Frame(self.__parent, padx=10, pady=10)
+        self.__frame = Frame(self.__parent, padding=(10, 10))
         self.__frame.pack(fill="both", expand=True)
 
         self.__selected_folders = []
@@ -59,7 +61,7 @@ class MainPage():
             # self.__folder_frame.pack()
 
     def __initialize(self):
-        self.__start_button_frame = Frame(self.__frame, pady=5)
+        self.__start_button_frame = Frame(self.__frame, padding=(0, 5))
         Button(self.__start_button_frame, text="start session", command=self.start_quickdraw_countdown).pack()
         self.__folder_frame_container = Frame(self.__frame)
         self.__start_button_frame.pack(fill="both")

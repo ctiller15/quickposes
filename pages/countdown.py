@@ -1,4 +1,4 @@
-from tkinter import Frame, Label
+from tkinter.ttk import Frame, Label
 
 
 class Countdown():
@@ -7,16 +7,15 @@ class Countdown():
         self.__start_quickdraw = start_quickdraw
 
     def build(self):
-        self.__frame = Frame(self.__parent, padx=10, pady=10)
+        self.__frame = Frame(self.__parent, padding=(10, 10))
         self.__frame.pack(fill="both", expand=True)
 
         self.__initialize()
 
     def __initialize(self):
-        self.__image_frame = Frame(self.__frame, padx=10, pady=10)
-        Label(self.__image_frame, font=("Arial", 120), name="countdown").pack(fill="both", expand=True)
-        self.__image_frame.pack(fill="both", expand=True)
-        label = self.__image_frame.nametowidget('countdown')
+        countdown_label = Label(self.__frame, font=("Arial", 200), name="countdown", anchor="center")
+        countdown_label.pack(anchor="center", fill="both", expand=True)
+        label = self.__frame.nametowidget('countdown')
         self.__frame.after(0, lambda: self.countdown(3, label))
 
     def countdown(self, i, label: Label):

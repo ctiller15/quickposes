@@ -1,7 +1,8 @@
 import os
 import random
-from tkinter import Button, Event, Frame, Label
+from tkinter import Event
 from PIL import ImageTk, Image
+from tkinter.ttk import Button, Frame, Label
 
 
 VALID_IMAGE_EXTENSIONS = ["png", "jpeg", "jpg"]
@@ -22,8 +23,7 @@ class Quickdraw():
         self.__gather_available_images()
 
     def build(self):
-        self.__frame = Frame(self.__parent, padx=10, pady=10)
-        self.__frame.config(bg="white")
+        self.__frame = Frame(self.__parent, padding=(10, 10))
         self.__frame.pack(fill="both", expand=True)
 
         self.__manage_draw_images()
@@ -69,12 +69,12 @@ class Quickdraw():
         self.img_aspect_ratio = float(self.img.width) / float(self.img.height)
         self.display_img = ImageTk.PhotoImage(self.img)
 
-        self.image_label = Label(self.__frame, image=self.display_img, name="img_container")
+        self.image_label = Label(self.__frame, image=self.display_img, name="img_container", anchor="center")
         self.image_label.pack(fill="both", expand=True)
         self.image_label.bind('<Configure>', self._resize_image)
 
         self.info = Frame(self.image_label, width=self.img.width, height=(int(self.img.height * .1)), borderwidth=1, relief="solid")
-        time_remaining = Label(self.info)
+        time_remaining = Label(self.info, anchor="center")
         self.info.place(relx=1.0, rely=1.0, x=-2, y=-2, anchor="se", relwidth=1.0)
         self.__current_after = self.__frame.after(0, lambda: self.countdown(10, time_remaining))
         time_remaining.pack(side="right")

@@ -1,6 +1,6 @@
 import os
 import random
-from tkinter import Event
+from tkinter import Event, StringVar
 from PIL import ImageTk, Image
 from tkinter.ttk import Button, Frame, Label
 
@@ -44,7 +44,7 @@ class Quickdraw():
         self.__frame.after(0, lambda: self.cycle_images())
 
     def cycle_images(self):
-        if self.images_remaining > 0:
+        if self.images_remaining > 0 or self.current_image < len(self.__seen_images):
             if self.current_image == len(self.__seen_images):
                 next_image = self.chooseRandomImage()
                 self.__seen_images.append(next_image)
@@ -76,10 +76,17 @@ class Quickdraw():
         self.image_label.pack(fill="both", expand=True)
         self.image_label.bind('<Configure>', self._resize_image)
 
+        # Creates the info container each time.
+        # Pretty expensive potentially. May be better to just create the container
+        # And then keep rebinding it.
         self.create_info_container()
     
     def create_info_container(self):
         self.info = Frame(self.image_label, width=self.img.width, height=(int(self.img.height * .1)), borderwidth=1, relief="solid")
+
+        info_sub_frame = Frame(self.info)
+        current_image_display = Label(info_sub_frame, anchor="center", width=10, text=f"{self.current_image + 1}/{self.image_count}")
+        current_image_display.pack(fill="x")
 
         time_menu = Frame(self.info)
         self.time_remaining_label = Label(time_menu, anchor="center", width=5)
@@ -91,6 +98,7 @@ class Quickdraw():
         time_menu.pack(side="right")
 
         self.create_nav_buttons()
+        info_sub_frame.pack(side="left")
 
     def create_nav_buttons(self):
         nav_buttons = Frame(self.info)

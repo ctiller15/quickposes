@@ -8,18 +8,16 @@ from pages.sessionend import SessionEnd
 from utils import Options, PageType
 
 class Window():
-    def __init__(self, width, height):
+    def __init__(self):
         self.__root = ThemedTk(theme="equilux")
+        width = self.__root.winfo_screenwidth() - 100
+        height = self.__root.winfo_screenheight() - 100
         self.__root.title("Quick Poses")
-        self.__root.geometry("800x600")
+        self.__root.geometry(f"{width}x{height}")
         self.__root.configure(padx=10, pady=10)
         self.__current_page_type = PageType.MAIN_PAGE
         self.__current_page = None
         self.__options = Options()
-
-        self.__build_page()
-
-        self.__root.mainloop()
 
     def __build_page(self):
         if self.__current_page is not None:
@@ -54,3 +52,9 @@ class Window():
     def visit_main_page(self):
         self.__current_page_type = PageType.MAIN_PAGE
         self.__build_page()
+
+    def build(self):
+        self.__build_page()
+    
+    def start(self):
+        self.__root.mainloop()

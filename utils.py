@@ -10,6 +10,7 @@ class Options():
     image_count = 10
     image_time_seconds = 60
     selected_folders = []
+    folder_info = []
 
 # If these aren't sufficient, we can add a custom option.
 time_choices = {

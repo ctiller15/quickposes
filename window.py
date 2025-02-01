@@ -1,4 +1,5 @@
 # import tkinter
+import os
 from ttkthemes import ThemedTk
 
 from pages.mainpage import MainPage
@@ -7,11 +8,15 @@ from pages.quickdraw import Quickdraw
 from pages.sessionend import SessionEnd
 from utils import Options, PageType
 
+# TODO: distribute exe
+
 class Window():
     def __init__(self):
+        base_dir = os.path.dirname(__file__)
         self.__root = ThemedTk(theme="equilux")
         width = self.__root.winfo_screenwidth() - 100
         height = self.__root.winfo_screenheight() - 100
+        self.__root.iconbitmap(os.path.join(base_dir,"icon.ico"))
         self.__root.title("Quick Poses")
         self.__root.geometry(f"{width}x{height}")
         self.__root.configure(padx=10, pady=10)

@@ -1,2 +1,8 @@
 __pycache__
 quick_poses_virtualenv
+
+# Build files
+build/
+dist/
+main.spec
+.DS_Store

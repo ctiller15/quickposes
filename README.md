@@ -1,6 +1,6 @@
 ## Quickposes
 
-A free application to do quickposes on your own computer
+An application built in tkinter to do quickposes
 
 ## Getting started
 
@@ -12,4 +12,10 @@ source quick_poses_virtualenv/bin/activate
 ```
 chmod +x ./start.sh
 ./start.sh
+```
+
+## Build
+```bash
+# macos
+pyinstaller -n="QuickPoses" --windowed --icon=icon.ico main.py
 ```

@@ -1,6 +1,5 @@
 from tkinter.ttk import Frame, Label
 
-
 class Countdown():
     def __init__(self, parent, start_quickdraw):
         self.__parent = parent

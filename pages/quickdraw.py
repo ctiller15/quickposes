@@ -4,21 +4,25 @@ from tkinter import Event
 from PIL import ImageTk, Image
 from tkinter.ttk import Button, Frame, Label
 
+from utils import Options
 
 VALID_IMAGE_EXTENSIONS = ["png", "jpeg", "jpg"]
 
 class Quickdraw():
     image_label: Frame
 
-    def __init__(self, parent, folders: list[str], image_count=10, finish_quickdraw=None):
+    def __init__(self, parent, opts: Options, image_count=10, finish_quickdraw=None):
+        # This is a lot of global variables that need some wranglin'
         self.__parent = parent
-        self.__folders = folders
+        self.__folders = opts.selected_folders
         self.__seen_images = []
         self.__all_images = []
         self.image_count = image_count
         self.images_remaining = image_count
         self.finish_quickdraw = finish_quickdraw
         self.current_image = 0
+        self.paused = False
+        self.time_remaining = 10 # default to passed in value.
 
         self.__gather_available_images()
 
@@ -27,7 +31,6 @@ class Quickdraw():
         self.__frame.pack(fill="both", expand=True)
 
         self.__manage_draw_images()
-        print("quickdrawing baby!")
 
     # Would make more sense to do this during the countdown phase.
     def __gather_available_images(self):
@@ -73,30 +76,39 @@ class Quickdraw():
         self.image_label.pack(fill="both", expand=True)
         self.image_label.bind('<Configure>', self._resize_image)
 
+        self.create_info_container()
+    
+    def create_info_container(self):
         self.info = Frame(self.image_label, width=self.img.width, height=(int(self.img.height * .1)), borderwidth=1, relief="solid")
-        time_remaining = Label(self.info, anchor="center")
-        self.info.place(relx=1.0, rely=1.0, x=-2, y=-2, anchor="se", relwidth=1.0)
-        self.__current_after = self.__frame.after(0, lambda: self.countdown(10, time_remaining))
-        time_remaining.pack(side="right")
-        # TODO: add pause button.
 
+        time_menu = Frame(self.info)
+        self.time_remaining_label = Label(time_menu, anchor="center", width=5)
+        self.pause_button = Button(time_menu, text="pause", command=self.pause_and_resume)
+        self.info.place(relx=1.0, rely=1.0, x=-2, y=-2, anchor="se", relwidth=1.0)
+        self.__current_after = self.__frame.after(0, lambda: self.countdown(10, self.time_remaining_label))
+        self.pause_button.pack(side="left")
+        self.time_remaining_label.pack(side="right")
+        time_menu.pack(side="right")
+
+        self.create_nav_buttons()
+
+    def create_nav_buttons(self):
         nav_buttons = Frame(self.info)
         prev_button = Button(nav_buttons, text="previous image", command=self.previous_image)
         next_button = Button(nav_buttons, text="next image", command=self.next_image)
         prev_button.pack(side="left")
         next_button.pack(side="right")
         nav_buttons.pack(side="left", fill="x")
-        # Move info into function that can rerun given a width and height.
 
     def countdown(self, i, label: Label):
         label['text'] = i
+        self.time_remaining = i
 
         if i > 0:
             i -= 1
             # Pauses when resizing. It's a convenient side-effect.
             self.__current_after = self.__frame.after(1000, lambda: self.countdown(i, label))
         else:
-            print("showing next image!")
             self.current_image += 1
             self.cycle_images()
 
@@ -132,6 +144,16 @@ class Quickdraw():
         self.__frame.after_cancel(self.__current_after)
         self.current_image += 1
         self.cycle_images()
+
+    def pause_and_resume(self):
+        if not self.paused:
+            self.__frame.after_cancel(self.__current_after)
+            self.paused = True
+            self.pause_button["text"] = "resume"
+        else:
+            self.__current_after = self.__frame.after(1000, lambda: self.countdown(self.time_remaining, self.time_remaining_label))
+            self.paused = False
+            self.pause_button["text"] = "pause"
 
     def destroy(self):
         self.__frame.destroy()

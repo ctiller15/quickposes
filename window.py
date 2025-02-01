@@ -32,7 +32,7 @@ class Window():
             self.__current_page = Countdown(self.__root, self.start_quickdraw)
             self.__current_page.build()
         elif self.__current_page_type == PageType.QUICK_DRAW:
-            self.__current_page = Quickdraw(self.__root, self.__options, image_count=20, finish_quickdraw=self.finish_quickdraw)
+            self.__current_page = Quickdraw(self.__root, self.__options, finish_quickdraw=self.finish_quickdraw)
             self.__current_page.build()
         elif self.__current_page_type == PageType.SESSION_END:
             self.__current_page = SessionEnd(self.__root, self.__viewed_images, self.visit_main_page)

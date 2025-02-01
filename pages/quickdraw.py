@@ -11,18 +11,19 @@ VALID_IMAGE_EXTENSIONS = ["png", "jpeg", "jpg"]
 class Quickdraw():
     image_label: Frame
 
-    def __init__(self, parent, opts: Options, image_count=10, finish_quickdraw=None):
+    def __init__(self, parent, opts: Options, finish_quickdraw=None):
         # This is a lot of global variables that need some wranglin'
         self.__parent = parent
         self.__folders = opts.selected_folders
         self.__seen_images = []
         self.__all_images = []
-        self.image_count = image_count
-        self.images_remaining = image_count
+        self.__opts = opts
+        self.image_count = self.__opts.image_count
+        self.images_remaining = self.__opts.image_count
         self.finish_quickdraw = finish_quickdraw
         self.current_image = 0
         self.paused = False
-        self.time_remaining = 10 # default to passed in value.
+        self.time_remaining = opts.image_time_seconds # default to passed in value.
 
         self.__gather_available_images()
 
@@ -92,7 +93,7 @@ class Quickdraw():
         self.time_remaining_label = Label(time_menu, anchor="center", width=5)
         self.pause_button = Button(time_menu, text="pause", command=self.pause_and_resume)
         self.info.place(relx=1.0, rely=1.0, x=-2, y=-2, anchor="se", relwidth=1.0)
-        self.__current_after = self.__frame.after(0, lambda: self.countdown(10, self.time_remaining_label))
+        self.__current_after = self.__frame.after(0, lambda: self.countdown(self.__opts.image_time_seconds, self.time_remaining_label))
         self.pause_button.pack(side="left")
         self.time_remaining_label.pack(side="right")
         time_menu.pack(side="right")
@@ -109,7 +110,9 @@ class Quickdraw():
         nav_buttons.pack(side="left", fill="x")
 
     def countdown(self, i, label: Label):
-        label['text'] = i
+        minutes_remaining = f"{i // 60}".zfill(2)
+        seconds_remaining = f"{i % 60}".zfill(2)
+        label['text'] = f"{minutes_remaining}:{seconds_remaining}"
         self.time_remaining = i
 
         if i > 0:
@@ -159,7 +162,7 @@ class Quickdraw():
             self.paused = True
             self.pause_button["text"] = "resume"
         else:
-            self.__current_after = self.__frame.after(1000, lambda: self.countdown(self.time_remaining, self.time_remaining_label))
+            self.__current_after = self.__frame.after(500, lambda: self.countdown(self.time_remaining, self.time_remaining_label))
             self.paused = False
             self.pause_button["text"] = "pause"
 

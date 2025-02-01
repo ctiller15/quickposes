@@ -87,7 +87,10 @@ class Quickdraw():
 
         info_sub_frame = Frame(self.info)
         current_image_display = Label(info_sub_frame, anchor="center", width=10, text=f"{self.current_image + 1}/{self.image_count}")
-        current_image_display.pack(fill="x")
+        current_image_display.pack(fill="x", side="left")
+
+        end_session_button = Button(info_sub_frame, text="End Session", command=lambda: self.finish_quickdraw(self.__seen_images))
+        end_session_button.pack(fill="x", side="left")
 
         time_menu = Frame(self.info)
         self.time_remaining_label = Label(time_menu, anchor="center", width=5)
@@ -129,10 +132,11 @@ class Quickdraw():
         self.display_img = ImageTk.PhotoImage(self.img)
         self.image_label.configure(image=self.display_img)
 
-    def chooseRandomImage(self):
+    def chooseRandomImage(self) -> str:
         choice = random.randint(0, len(self.__all_images) - 1)
         chosen_image = self.__all_images[choice]
         # Remove random image from array.
+        del self.__all_images[choice]
         return chosen_image
 
     def crop_dims(self, width, height, ratio):
